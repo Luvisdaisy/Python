@@ -1,0 +1,13 @@
+numpy
+tensorflow
+scipy
+word2vec
+pymssql
+argparse
+gensim
+wordcloud
+pyecharts-snapshot
+phantomjs
+jupyter-echarts-pypkg==0.1.1
+pypinyin
+snownlp
