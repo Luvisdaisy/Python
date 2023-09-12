@@ -1,6 +1,7 @@
 from fake_useragent import UserAgent
 import itchat
 import requests
+import re
 from bs4 import BeautifulSoup
 
 import SparkApi
@@ -26,8 +27,9 @@ def group_reply(msg):
         #         msg["ActualNickName"],
         #         getNews() or "收到：" + msg["Text"],
         #     )
-        st = spark_talk
-        answer = st.get_spark_answer(st, msg.content)
+        st = spark_talk()
+        question = re.search(r'\u2005(.+)', msg.content).group(1)
+        answer = st.get_spark_answer(question)
         return "@%s\u2005%s" % (
             msg["ActualNickName"],
             answer or "收到：" + msg["Text"],
@@ -42,8 +44,11 @@ class spark_talk(object):
         self.appid = "f349c6f3"
         self.api_secret = "NTRkYjM1NTlmM2Y2ZTE2MjE3NjdmYTNj"
         self.api_key = "b2e656f09287222be0c82b670ba10421"
-        self.domain = "general"
-        self.Spark_url = "ws://spark-api.xf-yun.com/v1.1/chat"
+        # self.domain = "general"
+        self.domain = "generalv2"    # v2.0版本
+        # self.Spark_url = "ws://spark-api.xf-yun.com/v1.1/chat"
+        self.Spark_url = "ws://spark-api.xf-yun.com/v2.1/chat"  # v2.0环境的地址
+
         self.text = []
 
     def getText(self, role, content):
@@ -71,7 +76,7 @@ class spark_talk(object):
         """
         文本长度超过8000 删除之前的内容
         """
-        while self.getlength(text) > 8000:
+        while self.getlength(text) > 200:
             del text[0]
         return text
 
@@ -92,7 +97,7 @@ class spark_talk(object):
                 question,
             )
             self.getText("assistant", SparkApi.answer)
-            return str((self.text))
+            return str((self.text[1]['content']))
 
 
 def get_xingzuo(index):
@@ -165,25 +170,31 @@ def get_xingzuo(index):
     )
     wealth_stars = "财富运势：{}\n".format(wealth_value * star_emoji)
     health_index = "健康指数：{}\n".format(
-        info_short.select_one('li:contains("健康指数：")').text.split("：")[1].strip()
+        info_short.select_one('li:contains("健康指数：")').text.split("：")[
+            1].strip()
     )
     negotiation_index = "商谈指数：{}\n".format(
-        info_short.select_one('li:contains("商谈指数：")').text.split("：")[1].strip()
+        info_short.select_one('li:contains("商谈指数：")').text.split("：")[
+            1].strip()
     )
     lucky_color = "幸运颜色：{}\n".format(
-        info_short.select_one('li:contains("幸运颜色：")').text.split("：")[1].strip()
+        info_short.select_one('li:contains("幸运颜色：")').text.split("：")[
+            1].strip()
     )
     lucky_number = "幸运数字：{}\n".format(
-        info_short.select_one('li:contains("幸运数字：")').text.split("：")[1].strip()
+        info_short.select_one('li:contains("幸运数字：")').text.split("：")[
+            1].strip()
     )
     compatible_sign = "速配星座：{}\n".format(
-        info_short.select_one('li:contains("速配星座：")').text.split("：")[1].strip()
+        info_short.select_one('li:contains("速配星座：")').text.split("：")[
+            1].strip()
     )
     comment = "短评：{}\n".format(
         info_short.find("li", class_="desc").text.split("：")[1].strip()
     )
     comprehensive_desc = "综合运势：{}\n".format(
-        info_long.find("strong", class_="p1").find_next("span").text[:-5].strip()
+        info_long.find("strong", class_="p1").find_next(
+            "span").text[:-5].strip()
     )
     love_desc = "爱情运势：{}\n".format(
         info_long.find("strong", class_="p2").find_next("span").text.strip()
@@ -221,7 +232,8 @@ def get_xingzuo(index):
 
 
 def msg_has_xingzuo(msg):
-    signs = ["巨蟹", "天蝎", "金牛", "摩羯", "天秤", "双子", "水瓶", "双鱼", "白羊", "狮子", "处女", "射手"]
+    signs = ["巨蟹", "天蝎", "金牛", "摩羯", "天秤", "双子",
+             "水瓶", "双鱼", "白羊", "狮子", "处女", "射手"]
     for item in signs:
         if item in msg:
             return signs.index(item)
@@ -267,5 +279,6 @@ def getNews():
     return news
 
 
-itchat.auto_login(loginCallback=True, enableCmdQR=2, exitCallback=True, hotReload=True)
+itchat.auto_login(loginCallback=True, enableCmdQR=2,
+                  exitCallback=True, hotReload=True)
 itchat.run()
