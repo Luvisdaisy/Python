@@ -57,3 +57,9 @@ https://codec.wang/docs/opencv/
    blur = cv2.GaussianBlur(img, (5, 5), 0)
    ret3, th3 = cv2.threshold(blur, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
    ```
+
+### 2023.9.25
+
+完成基础篇内容，（除挑战内容
+
+### 2023.
