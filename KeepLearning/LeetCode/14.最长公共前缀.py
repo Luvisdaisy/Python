@@ -13,16 +13,18 @@ class Solution(object):
         :type strs: List[str]
         :rtype: str
         """
-        first_string = strs[0]
-        if not first_string:
-            return ''
-        longest_pre = ''
-        for i in range(len(first_string)+1):
-            pre = first_string[:i]
-            for s in strs:
-                if not s.startswith(pre):
-                    return longest_pre
-            longest_pre = pre
+        m = len(strs)
+        n = len(strs[0])
+        for col in range(n):
+            for row in range(1, m):
+                thisStr, prevStr = strs[row], strs[row - 1]
+                if (
+                    col >= len(thisStr)
+                    or col >= len(prevStr)
+                    or thisStr[col] != prevStr[col]
+                ):
+                    return strs[row][:col]
+        return strs[0]
 
 
 # @lc code=end
