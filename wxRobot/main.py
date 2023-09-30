@@ -27,6 +27,8 @@ def group_reply(msg):
         #         msg["ActualNickName"],
         #         getNews() or "收到：" + msg["Text"],
         #     )
+        if 'quit' in msg.content:
+            return 0
         st = spark_talk()
         question = re.search(r'\u2005(.+)', msg.content).group(1)
         answer = st.get_spark_answer(question)
