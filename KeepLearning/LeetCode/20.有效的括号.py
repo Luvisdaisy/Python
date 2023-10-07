@@ -4,6 +4,7 @@
 # [20] 有效的括号
 #
 
+
 # @lc code=start
 class Solution(object):
     def isValid(self, s):
@@ -11,5 +12,20 @@ class Solution(object):
         :type s: str
         :rtype: bool
         """
-# @lc code=end
+        stack = []
+        map = {")": "(", "]": "[", "}": "{"}
+        for c in s:
+            if c in map:
+                top_elem = stack.pop() if stack else "#"
+                if map[c] != top_elem:
+                    return False
+            else:
+                stack.append(c)
+        return not stack
 
+
+# test = Solution()
+# s = "()[]{}"
+# test.isValid(s)
+
+# @lc code=end
