@@ -5,7 +5,7 @@ ALL_CHARS = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
 
 
 def gen_md5_digest(content):
-    return hashlib.md5(content.encode('')).hexdigest()
+    return hashlib.md5(content.encode()).hexdigest()
 
 
 def gen_random_code(length=4):

@@ -1,18 +1,25 @@
+from io import BytesIO
+
+from reportlab.pdfgen import canvas
+import xlwt
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import redirect, render
 
 from polls.models import Subject, Teacher, User
 import polls.utils as utils
+
+
 # Create your views here.
 
 
-
 def show_subjects(request):
+    """查看学科"""
     subjects = Subject.objects.all().order_by('no')
     return render(request, 'subjects.html', {'subjects': subjects})
 
 
 def show_teachers(request):
+    """查看老师"""
     try:
         sno = int(request.GET.get('sno'))
         teachers = []
@@ -27,6 +34,7 @@ def show_teachers(request):
 
 
 def praise_or_criticize(request: HttpRequest) -> HttpResponse:
+    """评价"""
     if request.session.get('userid'):
         try:
             tno = int(request.GET.get('tno'))
@@ -55,6 +63,7 @@ def get_captcha(request: HttpRequest) -> HttpResponse:
 
 
 def login(request: HttpRequest) -> HttpResponse:
+    """登录"""
     hint = ''
     if request.method == 'POST':
         if request.session.test_cookie_worked():
@@ -82,3 +91,50 @@ def logout(request):
     """退出登录"""
     request.session.flush()
     return redirect('/')
+
+
+def export_teachers_excel(request):
+    """导出教师列表"""
+    wb = xlwt.Workbook()
+    sheet = wb.add_sheet('教师列表')
+    queryset = Teacher.objects.all().select_related('subject')
+    colnames = ('姓名', '介绍', '好评数', '差评数', '学科')
+    for index, name in enumerate(colnames):
+        sheet.write(0, index, name)
+    props = ('name', 'detail', 'good_count', 'bad_count', 'subject')
+    for row, teacher in enumerate(queryset):
+        for col, prop in enumerate(props):
+            value = getattr(teacher, prop, '')
+            if isinstance(value, Subject):
+                value = value.name
+            sheet.write(row + 1, col, value)
+    buffer = BytesIO()
+    wb.save(buffer)
+    resp = HttpResponse(buffer.getvalue(), content_type='application/vnd.ms-excel')
+    filename = 'teachers.xls'
+    resp['Content-Disposition'] = 'attachment; filename=%s' % filename
+    return resp
+
+
+def export_pdf(request: HttpRequest) -> HttpResponse:
+    """导出pdf报表"""
+    buffer = BytesIO()
+    pdf = canvas.Canvas(buffer)
+    pdf.setFont('Helvetica', 80)
+    pdf.setFillColorRGB(0.2, 0.5, 0.3)
+    pdf.drawString(100, 550, 'hello,world!')
+    pdf.showPage()
+    pdf.save()
+    resp = HttpResponse(buffer.getvalue(), content_type='application/pdf')
+    resp['Content-Disposition'] = 'inline; filename="demo.pdf"'
+    return resp
+
+
+def get_teachers_data(request):
+    """教师统计图表"""
+    queryset = Teacher.objects.all().only('name', 'good_count', 'bad_count')
+    names = [teacher.name for teacher in queryset]
+    good_counts = [teacher.good_count for teacher in queryset]
+    bad_counts = [teacher.bad_count for teacher in queryset]
+
+    return JsonResponse({'names': names, 'good': good_counts, 'bad': bad_counts})

@@ -15,7 +15,9 @@ Including another URLconf
 """
 import polls.views as views
 from django.contrib import admin
-from django.urls import path
+from django.urls import include, path
+
+from vote import settings
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -23,6 +25,13 @@ urlpatterns = [
     path('teachers/', views.show_teachers),
     path('praise/', views.praise_or_criticize),
     path('criticize/', views.praise_or_criticize),
-    path('login/', views.login,name='login'),
+    path('login/', views.login, name='login'),
     path('captcha/', views.get_captcha, name='captcha'),
+    path('excel/', views.export_teachers_excel),
+    path('pdf/', views.export_pdf),
+    path('logout/', views.logout, name='logout'),
+    path('teachers_data/', views.get_teachers_data, name='teachers_data'),
 ]
+if settings.DEBUG:
+    import debug_toolbar
+    urlpatterns.insert(0, path('__debug__/', include(debug_toolbar.urls)))
