@@ -13,9 +13,12 @@ class Solution(object):
         :type val: int
         :rtype: int
         """
-        for index in len(nums):
-            if nums[index] == val:
-                nums[index] = nums[index + 1]
+        slow = 0
+        for fast in range(len(nums)):
+            if nums[fast] != val:
+                nums[slow] = nums[fast]
+                slow += 1
+        return slow
 
 
 # @lc code=end
