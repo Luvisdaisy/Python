@@ -34,7 +34,7 @@ def flower(n):
 t.screensize(500, 500, "white")
 t.pensize(8)
 t.pencolor("black")
-t.speed(50)
+t.speed(100)
 
 # 头
 t.penup()
@@ -335,7 +335,7 @@ t.hideturtle()
 t.penup()
 t.goto(180, -200)
 t.pendown()
-t.color("blue")
-t.write("For 刘颖", align="right", font=("Arial", 23, "normal"))
+t.color("black")
+t.write("For LY", align="right", font=("Arail", 23, "normal"))
 
 t.mainloop()
